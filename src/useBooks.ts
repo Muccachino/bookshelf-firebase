@@ -73,5 +73,12 @@ export default function useBooks() {
         }
     }
 
-    return [books, addBook, deleteBook, addImage]
+    const editBook = async (book: TBook) => {
+        const docRef = await doc(db, "books", book.title);
+
+        await updateDoc(docRef, {...book})
+        
+    }
+
+    return [books, addBook, deleteBook, addImage, editBook]
 }

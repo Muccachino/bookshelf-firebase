@@ -7,9 +7,12 @@ import useBooks, { TBook } from "./useBooks";
 interface Props {
   open: boolean;
   handleClose: () => void;
+  newBook: boolean;
+  currentBook: TBook | null
 }
 
-export default function Form({open, handleClose}: Props) {
+export default function Form({open, handleClose, newBook, currentBook}: Props) {
+
 
   const [formData, setFormData] = useState({
     title: "",
@@ -18,13 +21,23 @@ export default function Form({open, handleClose}: Props) {
     read: false,
   })
 
-  const[, addBook] = useBooks();
+  if(currentBook) {
+    const editFormData = {
+      title: currentBook.title,
+      author: currentBook.author,
+      pages: currentBook.pages,
+      read: currentBook.read
+    };
+    setFormData(editFormData)
+  }
+
+  const[, addBook, , ,editBook] = useBooks();
 
   return(
     <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Add Book</DialogTitle>
+      <DialogTitle>{newBook ? "Add Book" : "Edit Book"}</DialogTitle>
       <DialogContent>
-        <DialogContentText>Add a Book to the Bookshelf</DialogContentText>
+        <DialogContentText>{newBook ? "Add a Book to the Bookshelf" : "Edit Book in Bookshelf"}</DialogContentText>
         <TextField
           required
           autoFocus
@@ -63,17 +76,30 @@ export default function Form({open, handleClose}: Props) {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={() => {
-          (addBook as (book: TBook) => Promise<void>)(formData as TBook);
-          setFormData({
-            title: "",
-            author: "",
-            pages: 0,
-            read: false,
-          });
-          handleClose()
-        }}
-        >Add Book</Button>
+        {newBook && 
+          <Button onClick={() => {
+            (addBook as (book: TBook) => Promise<void>)(formData as TBook);
+            setFormData({
+              title: "",
+              author: "",
+              pages: 0,
+              read: false,
+            });
+            handleClose()
+          }}
+          >Add Book</Button>}
+        {!newBook &&
+          <Button onClick={() => {
+            (editBook as (book: TBook) => Promise<void>)(formData as TBook);
+            setFormData({
+              title: "",
+              author: "",
+              pages: 0,
+              read: false,
+            });
+            handleClose()
+          }}
+          >Save Changes</Button>}
       </DialogActions>
     </Dialog>
   )

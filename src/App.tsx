@@ -1,5 +1,5 @@
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import './App.css'
 import SignInButton from './firebase/SignIn'
 import {auth} from "./firebase/firebaseInit"
@@ -9,10 +9,13 @@ import AutoStoriesIcon from "@mui/icons-material/AutoStories"
 import { Button, Container, Grid } from '@mui/material'
 import BookCard from './Books'
 import Form from './Form'
+import { TBook } from './useBooks'
 
 function App() {
 
   const [open, setOpen] = useState(false);
+  const newBook = useRef(false)
+  const currentBook = useRef<TBook | null>(null)
   const [user] = useAuthState(auth);
   const header = {
     height: "10vh",
@@ -23,6 +26,11 @@ function App() {
     boxShadow: "2px 2px 3px gray",
     padding: "3px 5%"
   };
+
+  const handleCurrentBook = (book: TBook) => {
+    console.log(book)
+    currentBook.current = book;
+  }
 
   return (
     <>
@@ -44,7 +52,7 @@ function App() {
             size='large'
             variant='outlined'
             startIcon={<AutoStoriesIcon/>}
-            onClick={() => setOpen(true)}>
+            onClick={() => {newBook.current = !newBook.current; setOpen(true)}}>
             Add Book
           </Button>
         )}
@@ -58,7 +66,7 @@ function App() {
             sx={{display: "flex", flexWrap: "wrap", mt: 10, mb: 10}}
             >
               {user ? (
-                <BookCard/> 
+                <BookCard handleCurrentBook={handleCurrentBook} openEditForm={() => {newBook.current = false; setOpen(true)}} /> 
               ) : (
                 <div
                   style={{
@@ -76,7 +84,7 @@ function App() {
           </Grid>
         </Container>
       </main>
-      <Form open={open} handleClose={() => setOpen(false)}/>
+      <Form open={open} newBook={newBook.current} currentBook={currentBook.current!} handleClose={() => setOpen(false)}/>
     </>
   )
 }
