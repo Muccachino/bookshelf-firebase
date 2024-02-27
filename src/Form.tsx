@@ -1,7 +1,18 @@
 import CheckBox  from "@mui/material/Checkbox";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControlLabel, TextField } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useBooks, { TBook } from "./useBooks";
+
+export type EditedBook = {
+  id?: string;
+  title: string;
+  author: string;
+  pages: number;
+  read: boolean;
+  createdAt?: Date;
+  imageURL?: string;
+  uid?: string;
+}
 
 
 interface Props {
@@ -14,22 +25,30 @@ interface Props {
 export default function Form({open, handleClose, newBook, currentBook}: Props) {
 
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<EditedBook>({
     title: "",
     author: "",
     pages: 0,
     read: false,
   })
 
-  if(currentBook) {
-    const editFormData = {
-      title: currentBook.title,
-      author: currentBook.author,
-      pages: currentBook.pages,
-      read: currentBook.read
-    };
-    setFormData(editFormData)
-  }
+  useEffect(() => {
+    if(currentBook) {
+      const editFormData = {
+        id: currentBook.id,
+        title: currentBook.title,
+        author: currentBook.author,
+        pages: currentBook.pages,
+        read: currentBook.read,
+        createdAt: currentBook.createdAt,
+        imageURL: currentBook.imageURL,
+        uid: currentBook.uid,
+
+      };
+      setFormData(editFormData)
+    }
+  }, [currentBook])
+
 
   const[, addBook, , ,editBook] = useBooks();
 
